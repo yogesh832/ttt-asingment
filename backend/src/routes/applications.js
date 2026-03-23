@@ -4,6 +4,7 @@ const { applyToJob, getMyApplications, getApplicationsForJob, updateApplicationS
 const { verifyToken } = require('../middleware/auth');
 const { requireRole } = require('../middleware/role');
 const { validateRequest } = require('../middleware/validate');
+const upload = require('../config/upload');
 
 const router = express.Router();
 
@@ -12,6 +13,7 @@ router.post(
   '/',
   verifyToken,
   requireRole('candidate'),
+  upload.single('resume'),
   [
     body('jobId').notEmpty().withMessage('Job ID is required'),
     body('name').notEmpty().withMessage('Name is required'),

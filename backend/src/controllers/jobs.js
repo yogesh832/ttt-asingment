@@ -27,7 +27,7 @@ const createJob = async (req, res) => {
 
 const getJobs = async (req, res) => {
   try {
-    const { keyword, location, type } = req.query;
+    const { keyword, location, type, page = 1, limit = 10 } = req.query;
     const query = {};
 
     if (keyword) {
@@ -44,8 +44,23 @@ const getJobs = async (req, res) => {
       query.type = type;
     }
 
-    const jobs = await Job.find(query).sort({ createdAt: -1 });
-    res.json(jobs);
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+    const skip = (pageNumber - 1) * limitNumber;
+
+    const [jobs, totalJobs] = await Promise.all([
+      Job.find(query).sort({ createdAt: -1 }).skip(skip).limit(limitNumber),
+      Job.countDocuments(query)
+    ]);
+
+    const totalPages = Math.ceil(totalJobs / limitNumber);
+
+    res.json({
+      jobs,
+      currentPage: pageNumber,
+      totalPages,
+      totalJobs
+    });
   } catch (error) {
     console.error('Get Jobs Error:', error);
     res.status(500).json({ error: 'Internal server error while fetching jobs.' });

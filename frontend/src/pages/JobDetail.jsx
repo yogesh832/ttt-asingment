@@ -19,7 +19,7 @@ const JobDetail = () => {
   // Application state
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [coverLetter, setCoverLetter] = useState('');
-  const [resumeUrl, setResumeUrl] = useState('');
+  const [resumeFile, setResumeFile] = useState(null);
   const [applying, setApplying] = useState(false);
   const [applySuccess, setApplySuccess] = useState(false);
   const [applyError, setApplyError] = useState('');
@@ -44,11 +44,18 @@ const JobDetail = () => {
     setApplyError('');
     
     try {
-      await api.post('/applications', {
-        jobId: id,
-        name: user.name,
-        coverLetter,
-        resumeUrl
+      const formData = new FormData();
+      formData.append('jobId', id);
+      formData.append('name', user.name);
+      formData.append('coverLetter', coverLetter);
+      if (resumeFile) {
+        formData.append('resume', resumeFile);
+      }
+
+      await api.post('/applications', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
       setApplySuccess(true);
       setShowApplyModal(false);
@@ -176,13 +183,12 @@ const JobDetail = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-dark-muted mb-1">Resume URL (Optional)</label>
+                <label className="block text-sm font-medium text-dark-muted mb-1">Resume (PDF, DOC) - Optional</label>
                 <input 
-                  type="url"
-                  className="input-field"
-                  placeholder="https://link-to-your-resume.pdf"
-                  value={resumeUrl}
-                  onChange={(e) => setResumeUrl(e.target.value)}
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  className="input-field file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-500 file:text-white hover:file:bg-primary-600 cursor-pointer"
+                  onChange={(e) => setResumeFile(e.target.files[0])}
                 />
               </div>
 

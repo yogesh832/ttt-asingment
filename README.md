@@ -5,7 +5,7 @@ Built using React (Vite), Node.js, Express, PostgreSQL, MongoDB, and Tailwind CS
 
 ## Features
 - **Employers:** Post new jobs, view list of submitted jobs, edit/delete jobs, and review applications with status updates (Accepted/Rejected/Reviewed).
-- **Candidates:** Browse global job listings with Search/Filter features, apply to jobs with a cover letter, and track application statuses.
+- **Candidates:** Browse global job listings with Search/Filter features, apply to jobs with a cover letter + Cloudinary resume upload, and track application statuses.
 - **Authentication:** Role-based access control (Employer vs Candidate) leveraging JWT.
 - **Modern UI:** Premium dark mode styling using Tailwind CSS and Lucide React icons.
 
@@ -53,20 +53,26 @@ PG_DATABASE=jobboard
 PG_PASSWORD=postgres
 PG_PORT=5432
 
-# MongoDB
-MONGO_URI=mongodb://localhost:27017/jobboard
+# MongoDB (Atlas)
+MONGO_URI=mongodb+srv://upadhayayyogesh832:123freelanceproject123@cluster0.ga6zbb8.mongodb.net/jobboard?retryWrites=true&w=majority&appName=Cluster0
 
 # JWT
 JWT_SECRET=your_super_secret_jwt_key
+
+# Cloudinary (Used for resumes)
+CLOUDINARY_CLOUD_NAME=dil5x4cxh
+CLOUDINARY_API_KEY=585782464739395
+CLOUDINARY_API_SECRET=e8q7eMypVZX30vTbT_m7PI4iUHc
 ```
 
 ### 3. Running with Docker Compose
-The simplest way to stand up the local databases is via Docker.
+This automatically boots a PostgreSQL instance (with the user table initialized via `init.sql`).
+The backend connects to the live MongoDB Atlas cluster specified in the `.env`.
 From the root directory, run:
 ```bash
 docker-compose up
 ```
-This automatically boots a PostgreSQL instance (with the user table initialized via `init.sql`), a MongoDB instance, and the Node.js backend on `http://localhost:5000`.
+This starts PostgreSQL and the Node.js backend on `http://localhost:5000`.
 
 ### 4. Running the Frontend
 In a separate terminal window, open the `/frontend` directory:

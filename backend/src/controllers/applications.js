@@ -3,7 +3,12 @@ const Job = require('../models/Job');
 
 const applyToJob = async (req, res) => {
   try {
-    const { jobId, coverLetter, resumeUrl } = req.body;
+    const { jobId, coverLetter } = req.body;
+    let resumeUrl = req.body.resumeUrl;
+    
+    if (req.file && req.file.path) {
+      resumeUrl = req.file.path;
+    }
     
     // Validate Job exists
     const job = await Job.findById(jobId);

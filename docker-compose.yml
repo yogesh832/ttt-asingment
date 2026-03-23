@@ -16,13 +16,11 @@ services:
       - PG_DATABASE=jobboard
       - PG_PASSWORD=postgres
       - PG_PORT=5432
-      - MONGO_URI=mongodb://mongo:27017/jobboard
+      - MONGO_URI=mongodb+srv://upadhayayyogesh832:123freelanceproject123@cluster0.ga6zbb8.mongodb.net/jobboard?retryWrites=true&w=majority&appName=Cluster0
       - JWT_SECRET=supersecretjwtkey_replace_in_production
     depends_on:
       postgres:
         condition: service_healthy
-      mongo:
-        condition: service_started
     networks:
       - jobboard-network
 
@@ -46,15 +44,7 @@ services:
     networks:
       - jobboard-network
 
-  mongo:
-    image: mongo:6-jammy
-    container_name: jobboard-mongo
-    ports:
-      - '27017:27017'
-    volumes:
-      - mongodata:/data/db
-    networks:
-      - jobboard-network
+
 
 volumes:
   pgdata:

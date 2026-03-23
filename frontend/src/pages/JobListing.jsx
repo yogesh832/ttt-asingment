@@ -8,12 +8,16 @@ const JobListing = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
+  // Pagination
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  
   // Filters
   const [keyword, setKeyword] = useState('');
   const [location, setLocation] = useState('');
   const [type, setType] = useState('');
 
-  const fetchJobs = async () => {
+  const fetchJobs = async (pageNum = 1) => {
     setLoading(true);
     setError('');
     try {
@@ -21,9 +25,12 @@ const JobListing = () => {
       if (keyword) params.append('keyword', keyword);
       if (location) params.append('location', location);
       if (type) params.append('type', type);
+      params.append('page', pageNum);
 
       const response = await api.get(`/jobs?${params.toString()}`);
-      setJobs(response.data);
+      setJobs(response.data.jobs || []);
+      setTotalPages(response.data.totalPages || 1);
+      setPage(pageNum);
     } catch (err) {
       setError('Failed to fetch jobs.');
       console.error(err);
@@ -38,7 +45,7 @@ const JobListing = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    fetchJobs();
+    fetchJobs(1);
   };
 
   const clearFilters = () => {
@@ -47,8 +54,12 @@ const JobListing = () => {
     setType('');
     // Notice: calling fetchJobs immediately here wouldn't use the cleared state,
     // so we trigger a fresh fetch without params
-    api.get('/jobs')
-      .then(res => setJobs(res.data))
+    api.get('/jobs?page=1')
+      .then(res => {
+        setJobs(res.data.jobs || []);
+        setTotalPages(res.data.totalPages || 1);
+        setPage(1);
+      })
       .catch(err => setError('Failed to fetch jobs.'));
   };
 
@@ -150,12 +161,35 @@ const JobListing = () => {
                    <p>Try adjusting your search or filters to find what you're looking for.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {jobs.map((job) => (
-                    <div key={job._id} className="flex">
-                       <JobCard job={job} />
+                <div className="space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {jobs.map((job) => (
+                      <div key={job._id} className="flex">
+                         <JobCard job={job} />
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Pagination Controls */}
+                  {totalPages > 1 && (
+                    <div className="flex justify-center items-center gap-4 pt-8">
+                      <button 
+                        onClick={() => fetchJobs(page - 1)}
+                        disabled={page === 1}
+                        className="btn-secondary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Previous
+                      </button>
+                      <span className="text-dark-muted font-medium">Page {page} of {totalPages}</span>
+                      <button 
+                        onClick={() => fetchJobs(page + 1)}
+                        disabled={page === totalPages}
+                        className="btn-secondary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Next
+                      </button>
                     </div>
-                  ))}
+                  )}
                 </div>
               )}
             </>

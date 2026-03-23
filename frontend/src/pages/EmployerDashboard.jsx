@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
-import { PlusCircle, ExternalLink, Users, Trash2 } from 'lucide-react';
+import { PlusCircle, ExternalLink, Users, Trash2, Edit, Briefcase } from 'lucide-react';
 
 const EmployerDashboard = () => {
   const [jobs, setJobs] = useState([]);
@@ -88,6 +88,9 @@ const EmployerDashboard = () => {
                   <Link target="_blank" rel="noopener noreferrer" to={`/jobs/${job._id}`} className="p-2 text-dark-muted hover:text-white transition-colors border border-transparent hover:bg-dark-border rounded-lg" title="View Public Posting">
                     <ExternalLink className="w-4 h-4" />
                   </Link>
+                  <Link to={`/employer/jobs/${job._id}/edit`} className="p-2 text-dark-muted hover:text-primary-400 transition-colors border border-transparent hover:bg-primary-500/10 rounded-lg" title="Edit Job">
+                    <Edit className="w-4 h-4" />
+                  </Link>
                   <button onClick={() => handleDelete(job._id)} className="p-2 text-dark-muted hover:text-red-400 transition-colors border border-transparent hover:bg-red-500/10 rounded-lg" title="Delete Job">
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -101,6 +104,4 @@ const EmployerDashboard = () => {
   );
 };
 
-// Also import Briefcase if not imported above
-import { Briefcase } from 'lucide-react';
 export default EmployerDashboard;

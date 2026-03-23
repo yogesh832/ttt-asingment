@@ -11,6 +11,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import EmployerDashboard from './pages/EmployerDashboard';
 import CreateJob from './pages/CreateJob';
+import EditJob from './pages/EditJob';
 import JobApplications from './pages/JobApplications';
 import MyApplications from './pages/MyApplications';
 
@@ -32,6 +33,7 @@ const App = () => {
               <Route element={<ProtectedRoute allowedRoles={['employer']} />}>
                 <Route path="/employer/dashboard" element={<EmployerDashboard />} />
                 <Route path="/employer/jobs/new" element={<CreateJob />} />
+                <Route path="/employer/jobs/:id/edit" element={<EditJob />} />
                 <Route path="/employer/jobs/:id/applications" element={<JobApplications />} />
               </Route>
 
