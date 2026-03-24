@@ -1,5 +1,7 @@
 const Application = require('../models/Application');
 const Job = require('../models/Job');
+const https = require('https');
+const path = require('path');
 
 const applyToJob = async (req, res) => {
   try {
@@ -7,7 +9,8 @@ const applyToJob = async (req, res) => {
     let resumeUrl = req.body.resumeUrl;
     
     if (req.file && req.file.path) {
-      resumeUrl = req.file.path;
+      const ext = path.extname(req.file.originalname).toLowerCase().replace('.', '');
+      resumeUrl = `${req.file.path}?ext=${ext}`;
     }
     
     // Validate Job exists
@@ -111,9 +114,41 @@ const updateApplicationStatus = async (req, res) => {
   }
 };
 
+const getResume = async (req, res) => {
+  try {
+    const application = await Application.findById(req.params.id);
+    if (!application || !application.resumeUrl) {
+      return res.status(404).json({ error: 'Resume not found' });
+    }
+
+    const job = await Job.findById(application.jobId);
+    if (!job || job.postedBy !== req.user.id) {
+       return res.status(403).json({ error: 'Not authorized to view this resume.' });
+    }
+
+    const urlObj = new URL(application.resumeUrl);
+    const ext = urlObj.searchParams.get('ext') || 'pdf';
+    const cleanUrl = application.resumeUrl.split('?')[0];
+
+    https.get(cleanUrl, (proxyRes) => {
+      const isPdf = ext === 'pdf';
+      res.setHeader('Content-Type', isPdf ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+      res.setHeader('Content-Disposition', `inline; filename="resume.${ext}"`);
+      proxyRes.pipe(res);
+    }).on('error', (err) => {
+      console.error('Error proxying file: ', err);
+      res.status(500).json({ error: 'Failed to stream resume' });
+    });
+  } catch (error) {
+    console.error('Get Resume Error:', error);
+    res.status(500).json({ error: 'Internal server error while fetching resume.' });
+  }
+};
+
 module.exports = {
   applyToJob,
   getMyApplications,
   getApplicationsForJob,
   updateApplicationStatus,
+  getResume,
 };

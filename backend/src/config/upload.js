@@ -1,6 +1,7 @@
 const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cloudinary = require('cloudinary').v2;
+const path = require('path');
 require('dotenv').config();
 
 cloudinary.config({
@@ -13,6 +14,7 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'jobboard_resumes',
+    resource_type: 'raw',
     allowed_formats: ['pdf', 'doc', 'docx'],
   },
 });

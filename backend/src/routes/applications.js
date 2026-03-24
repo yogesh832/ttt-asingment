@@ -1,6 +1,6 @@
 const express = require('express');
 const { body } = require('express-validator');
-const { applyToJob, getMyApplications, getApplicationsForJob, updateApplicationStatus } = require('../controllers/applications');
+const { applyToJob, getMyApplications, getApplicationsForJob, updateApplicationStatus, getResume } = require('../controllers/applications');
 const { verifyToken } = require('../middleware/auth');
 const { requireRole } = require('../middleware/role');
 const { validateRequest } = require('../middleware/validate');
@@ -27,6 +27,7 @@ router.get('/my', verifyToken, requireRole('candidate'), getMyApplications);
 
 // Employer Routes
 router.get('/job/:jobId', verifyToken, requireRole('employer'), getApplicationsForJob);
+router.get('/:id/resume', verifyToken, requireRole('employer'), getResume);
 
 router.put(
   '/:id/status',

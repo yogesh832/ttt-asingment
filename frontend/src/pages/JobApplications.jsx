@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../api/axios';
-import { ArrowLeft, User, Mail, FileText, CheckCircle, XCircle, Clock, Eye } from 'lucide-react';
+import { ArrowLeft, User, Mail, FileText, CheckCircle, XCircle, Clock, Eye, Users, Loader2 } from 'lucide-react';
 
 const JobApplications = () => {
   const { id: jobId } = useParams();
@@ -9,6 +9,8 @@ const JobApplications = () => {
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const [processingId, setProcessingId] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,11 +50,39 @@ const JobApplications = () => {
     }
   };
 
-  if (loading) return (
+  const handleViewResume = async (appId, action) => {
+    try {
+      setProcessingId(appId);
+      const res = await api.get(`/applications/${appId}/resume`, { responseType: 'blob' });
+      const blob = new Blob([res.data], { type: res.headers['content-type'] || 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      
+      if (action === 'view') {
+        window.open(url, '_blank');
+      } else {
+        const link = document.createElement('a');
+        link.href = url;
+        const filenameMatch = res.headers['content-disposition']?.match(/filename="(.+)"/);
+        link.download = filenameMatch ? filenameMatch[1] : 'resume.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+      setTimeout(() => window.URL.revokeObjectURL(url), 10000);
+    } catch (err) {
+      console.error('Failed to fetch resume:', err);
+      alert('Failed to load resume. It may be restricted by the storage provider or missing.');
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  if (loading) {return (
     <div className="min-h-screen flex justify-center pt-20 bg-dark-bg text-primary-500">
        <div className="w-10 h-10 border-4 border-primary-500/20 border-t-primary-500 rounded-full animate-spin"></div>
     </div>
   );
+}
 
   return (
     <div className="min-h-screen bg-dark-bg p-4 sm:p-8">
@@ -108,18 +138,29 @@ const JobApplications = () => {
                    </div>
                    
                    {app.resumeUrl && (
-                     <div className="pt-2">
-                       <a 
-                         href={app.resumeUrl} 
-                         target="_blank" 
-                         rel="noopener noreferrer"
-                         className="text-sm text-primary-500 hover:text-primary-400 inline-flex items-center gap-1 font-medium"
-                       >
-                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                         View Attachment / Resume URL
-                       </a>
-                     </div>
-                   )}
+                      <div className="pt-2 flex items-center gap-3">
+                        <button 
+                          onClick={() => handleViewResume(app._id, 'view')}
+                          disabled={processingId === app._id}
+                          className="text-sm text-primary-500 hover:text-primary-400 inline-flex items-center gap-1.5 font-medium bg-primary-500/10 px-3 py-1.5 rounded-lg border border-primary-500/20 transition-colors hover:bg-primary-500/20 disabled:opacity-50"
+                        >
+                          {processingId === app._id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                          )}
+                          View Resume
+                        </button>
+                        <button 
+                          onClick={() => handleViewResume(app._id, 'download')}
+                          disabled={processingId === app._id}
+                          className="text-sm text-dark-muted hover:text-white inline-flex items-center gap-1.5 font-medium bg-dark-bg px-3 py-1.5 rounded-lg border border-dark-border transition-colors hover:bg-dark-border disabled:opacity-50"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                          Download
+                        </button>
+                      </div>
+                    )}
                 </div>
 
                 <div className="w-full md:w-48 flex flex-col gap-2 border-t md:border-t-0 md:border-l border-dark-border pt-4 md:pt-0 md:pl-6 justify-center">
@@ -156,5 +197,5 @@ const JobApplications = () => {
 };
 
 // Also import Users if not imported above
-import { Users } from 'lucide-react';
+
 export default JobApplications;

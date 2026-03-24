@@ -28,8 +28,13 @@ const JobListing = () => {
       params.append('page', pageNum);
 
       const response = await api.get(`/jobs?${params.toString()}`);
-      setJobs(response.data.jobs || []);
-      setTotalPages(response.data.totalPages || 1);
+      if (Array.isArray(response.data)) {
+        setJobs(response.data);
+        setTotalPages(1);
+      } else {
+        setJobs(response.data.jobs || []);
+        setTotalPages(response.data.totalPages || 1);
+      }
       setPage(pageNum);
     } catch (err) {
       setError('Failed to fetch jobs.');
@@ -56,8 +61,13 @@ const JobListing = () => {
     // so we trigger a fresh fetch without params
     api.get('/jobs?page=1')
       .then(res => {
-        setJobs(res.data.jobs || []);
-        setTotalPages(res.data.totalPages || 1);
+        if (Array.isArray(res.data)) {
+          setJobs(res.data);
+          setTotalPages(1);
+        } else {
+          setJobs(res.data.jobs || []);
+          setTotalPages(res.data.totalPages || 1);
+        }
         setPage(1);
       })
       .catch(err => setError('Failed to fetch jobs.'));

@@ -3,7 +3,10 @@ const mongoose = require('mongoose');
 const env = require('./env');
 
 // PostgreSQL Pool
-const pgPool = new Pool(env.pg);
+const pgPool = new Pool({
+  ...env.pg,
+  ssl: { rejectUnauthorized: false }
+});
 
 pgPool.on('error', (err) => {
   console.error('Unexpected error on idle PostgreSQL client', err);
