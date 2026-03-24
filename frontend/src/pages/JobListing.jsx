@@ -89,7 +89,7 @@ const JobListing = () => {
         </div>
 
         {/* Search & Filter Bar */}
-        <form onSubmit={handleSearch} className="card flex flex-col md:flex-row gap-4 animate-fade-in-up delay-100 z-10 sticky top-20">
+        <form onSubmit={handleSearch} className="card flex flex-col md:flex-row gap-4 animate-fade-in-up delay-100 mb-8">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-dark-muted w-5 h-5" />
             <input 
