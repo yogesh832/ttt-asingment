@@ -3,6 +3,10 @@
 A full-stack job board platform where employers post jobs and candidates browse and apply. 
 Built using React (Vite), Node.js, Express, PostgreSQL, MongoDB, and Tailwind CSS.
 
+## 🌐 Live Demos
+- **Frontend (Netlify):** [https://the-true-topper.netlify.app/](https://the-true-topper.netlify.app/)
+- **Backend API (Render):** [https://ttt-asingment.onrender.com](https://ttt-asingment.onrender.com)
+
 ## Features
 - **Employers:** Post new jobs, view list of submitted jobs, edit/delete jobs, and review applications with status updates (Accepted/Rejected/Reviewed).
 - **Candidates:** Browse global job listings with Search/Filter features, apply to jobs with a cover letter + Cloudinary resume upload, and track application statuses.
@@ -66,13 +70,12 @@ CLOUDINARY_API_SECRET=e8q7eMypVZX30vTbT_m7PI4iUHc
 ```
 
 ### 3. Running with Docker Compose
-This automatically boots a PostgreSQL instance (with the user table initialized via `init.sql`).
-The backend connects to the live MongoDB Atlas cluster specified in the `.env`.
+To simplify the build process, the backend runs in a Docker container and automatically connects to both live remote databases (MongoDB Atlas & Railway PostgreSQL).
 From the root directory, run:
 ```bash
-docker-compose up
+docker-compose up -d --build
 ```
-This starts PostgreSQL and the Node.js backend on `http://localhost:5000`.
+This starts the Node.js backend API locally on `http://localhost:5000`.
 
 ### 4. Running the Frontend
 In a separate terminal window, open the `/frontend` directory:
