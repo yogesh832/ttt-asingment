@@ -1,6 +1,13 @@
 const request = require('supertest');
 const express = require('express');
-const jobsRouter = require('../routes/jobs');
+
+// Mock env check before any imports
+jest.mock('../config/env', () => ({
+  port: 5000,
+  jwtSecret: 'test-secret',
+  pg: { user: 'test', host: 'localhost', database: 'test', password: 'test', port: 5432 },
+  mongoUri: 'mongodb://localhost/test',
+}));
 
 // Mock mongoose Job model
 jest.mock('../models/Job', () => {
@@ -14,6 +21,8 @@ jest.mock('../models/Job', () => {
     countDocuments: jest.fn().mockResolvedValue(1)
   };
 });
+
+const jobsRouter = require('../routes/jobs');
 
 const app = express();
 app.use(express.json());
