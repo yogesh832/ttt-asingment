@@ -41,6 +41,19 @@ const startServer = async () => {
     await connectDBs();
     app.listen(env.port, () => {
       console.log(`Server listening on port ${env.port}`);
+      
+      // Keep-alive ping to prevent Render free tier from sleeping, which causes CORS/Timeout errors
+      const testApiCall = () => {
+        const https = require('https');
+        https.get('https://ttt-asingment-ippg.onrender.com/', (res) => {
+          console.log(`Self-ping status: ${res.statusCode}`);
+        }).on('error', (err) => {
+          console.error(`Self-ping error: ${err.message}`);
+        });
+      };
+      
+      console.log('Starting 5-second interval self-ping...');
+      setInterval(testApiCall, 5000);
     });
   } catch (error) {
     console.error('Failed to start server:', error);
